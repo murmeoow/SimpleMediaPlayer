@@ -3,23 +3,34 @@ package com.example.simplemediaplayer.ui.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.NavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.simplemediaplayer.R
+import com.example.simplemediaplayer.Utils
 import com.example.simplemediaplayer.databinding.SongItemBinding
-import com.example.simplemediaplayer.model.MediaStoreAudio
+import com.example.simplemediaplayer.model.Audio
+import com.example.simplemediaplayer.ui.MusicListFragmentDirections
 
-class AudioAdapter: ListAdapter<MediaStoreAudio, AudioAdapter.AudioViewHolder>(SongDiffCallback()) {
+class AudioAdapter(val navController: NavController): ListAdapter<Audio, AudioAdapter.AudioViewHolder>(SongDiffCallback()) {
 
     inner class AudioViewHolder(item: View): RecyclerView.ViewHolder(item){
 
         val binding = SongItemBinding.bind(item)
 
-        fun bind(audio: MediaStoreAudio) = with(binding){
+        fun bind(audio: Audio) = with(binding){
             binding.tvSongTitle.text = audio.songTitle
             binding.tvSongArtist.text = audio.songArtist
-            binding.tvSongDuration.text = audio.duration.toString()
+
+            val duration = audio.duration
+            binding.tvSongDuration.text = Utils.durationConverter(duration)
+
+            binding.fragmentSongItem.setOnClickListener {
+
+                navController.navigate(
+                    MusicListFragmentDirections.actionMusicListFragmentToPlayerFragment(currentList.indexOf(audio)))
+            }
         }
     }
 
@@ -33,12 +44,12 @@ class AudioAdapter: ListAdapter<MediaStoreAudio, AudioAdapter.AudioViewHolder>(S
     }
 }
 
-class SongDiffCallback : DiffUtil.ItemCallback<MediaStoreAudio>() {
-    override fun areItemsTheSame(oldItem: MediaStoreAudio, newItem: MediaStoreAudio): Boolean {
+class SongDiffCallback : DiffUtil.ItemCallback<Audio>() {
+    override fun areItemsTheSame(oldItem: Audio, newItem: Audio): Boolean {
         return oldItem.id == newItem.id
     }
 
-    override fun areContentsTheSame(oldItem: MediaStoreAudio, newItem: MediaStoreAudio): Boolean {
+    override fun areContentsTheSame(oldItem: Audio, newItem: Audio): Boolean {
         return oldItem == newItem
     }
 }
